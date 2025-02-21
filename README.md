@@ -1,5 +1,5 @@
 # Ansible linux update and apply security patches
-This simple Ansible playbook updates your linux hosts and apply security patches.
+This simple Ansible playbook update your linux hosts and apply security patches.
 The script is executed in several stages:
 
 1) Update the apt package index
