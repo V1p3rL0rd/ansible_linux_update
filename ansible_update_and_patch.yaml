@@ -1,0 +1,41 @@
+- name: Update Linux Hosts and Apply Security Patches
+  hosts: linux_hosts
+  become: yes
+  remote_user: tuxadm # Here insert your SSH connection user
+  vars:
+    ansible_ssh_pass: Pass_12345 # Here insert SSH user's password
+    ansible_become_password: Pass_12345 # Here insert SSH sudoer user's password 
+
+  tasks:
+    - name: Update the apt package index
+      apt:
+        update_cache: yes
+
+    - name: Upgrade all packages to the latest version
+      apt:
+        upgrade: dist
+        state: latest
+
+    - name: Install unattended-upgrades package
+      apt:
+        name: unattended-upgrades
+        state: present
+
+    - name: Enable unattended upgrades
+      copy:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        content: |
+          APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::Download-Upgradeable-Packages "1";
+          APT::Periodic::AutocleanInterval "7";
+          APT::Periodic::Unattended-Upgrade "1";
+
+    - name: Configure unattended-upgrades for security updates
+      copy:
+        dest: /etc/apt/apt.conf.d/50unattended-upgrades
+        content: |
+          Unattended-Upgrade::Allowed-Origins {
+              "${distro_id}:${distro_codename}-security";
+          };
+          Unattended-Upgrade::Automatic-Reboot "true";
+          Unattended-Upgrade::Automatic-Reboot-Time "02:00";
